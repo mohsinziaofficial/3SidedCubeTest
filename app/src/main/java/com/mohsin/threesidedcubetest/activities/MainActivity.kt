@@ -1,9 +1,12 @@
 package com.mohsin.threesidedcubetest.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +15,7 @@ import com.clarity.android.interview.viewModels.MainActivityViewModel
 import com.mohsin.threesidedcubetest.R
 import com.mohsin.threesidedcubetest.model.PokemonNameAndImages
 import com.mohsin.threesidedcubetest.model.Result
+import com.mohsin.threesidedcubetest.model.Stat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
 
     private val pokemons = mutableListOf<PokemonNameAndImages>()
+
+    private val baseStats = arrayListOf<String>()
+    private val efforts = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +53,16 @@ class MainActivity : AppCompatActivity() {
                         val first = item.url.toString().substringBeforeLast("/")
                         var pokeURL = first.substringAfterLast("/")
 
-                        Log.d("pokemonsURLs", pokeURL)
-
                         val pokemonResponse = viewModel.makeIndividualApiCall(pokeURL.toInt())
                         val name = pokemonResponse.name.toString()
-                        val img = pokemonResponse.sprites?.backDefault.toString()
-                        pokemons.add(PokemonNameAndImages(name, img))
-                        adapter.updateImages(pokemons as ArrayList<PokemonNameAndImages>)
+                        val img = pokemonResponse.sprites?.frontDefault.toString()
+                        val stat = pokemonResponse.stats
+
+                        Log.d("pokemonStat", pokemonResponse.stats.toString())
+
+                        pokemons.add(PokemonNameAndImages(name, img, stat))
+
+                        adapter.update(pokemons as ArrayList<PokemonNameAndImages>)
 
             //                    CoroutineScope(Dispatchers.IO).launch {
             //                        val response = viewModel.makeIndividualApiCall(pokeURL.toInt())
@@ -79,7 +89,17 @@ class MainActivity : AppCompatActivity() {
         recyclerView = parent.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(parent.context, RecyclerView.VERTICAL, false)
 
-        adapter = AdapterPokemonList()
+        adapter = AdapterPokemonList(){
+                selectedItem : Int -> itemClicked(selectedItem)
+        }
         recyclerView.adapter = adapter
     }
+
+    fun itemClicked(position : Int) {
+
+        val intent = Intent(this, PokemonStats::class.java)
+        intent.putExtra("pokemonID", position)
+        startActivity(intent)
+    }
+
 }

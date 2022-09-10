@@ -4,7 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/activity_main.xml" value="0.22745098039215686" />
-        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/item_row.xml" value="0.25" />
+        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/activity_pokemon_stats.xml" value="0.21940928270042195" />
+        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/item_row.xml" value="0.1" />
+        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/pop_up_fragment.xml" value="0.22568093385214008" />
+        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/pop_up_item.xml" value="0.25" />
+        <entry key="..\:/Android_Projects/3SidedCubeTest/app/src/main/res/layout/stat_row.xml" value="0.1" />
       </map>
     </option>
   </component>

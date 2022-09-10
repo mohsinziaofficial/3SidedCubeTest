@@ -13,6 +13,7 @@
         app:cardCornerRadius="25dp">
 
         <LinearLayout
+            android:layoutAnimation="@anim/layout_animation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"

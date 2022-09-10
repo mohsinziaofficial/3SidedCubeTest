@@ -1,19 +1,13 @@
 package com.clarity.android.interview.adapter
 
 import android.animation.ObjectAnimator
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.mohsin.threesidedcubetest.R
-import com.mohsin.threesidedcubetest.model.PokemonNameAndImages
-import com.mohsin.threesidedcubetest.model.Result
-import com.mohsin.threesidedcubetest.model.SinglePokemonItem
 import com.mohsin.threesidedcubetest.model.Stat
 import java.util.ArrayList
 
@@ -27,13 +21,15 @@ class AdapterPokemonStat : RecyclerView.Adapter<AdapterPokemonStat.ViewHolder>()
         val effortText = itemView.findViewById<TextView>(R.id.effort)
         val progressBar = itemView.findViewById<ProgressBar>(R.id.progressBar)
 
+        // displaying data into views
         fun bind(stat: Stat) {
             statName.text = stat.statX?.name.toString()
             baseStat.text = stat.baseStat.toString()
             effortText.text = stat.effort.toString()
+
+            // animating progress bar horizontally
             progressBar.max = 100
             val currentProgress = stat.baseStat
-
             if (currentProgress != null) {
                 ObjectAnimator.ofInt(progressBar, "progress", currentProgress)
                     .setDuration(2000)

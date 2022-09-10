@@ -3,10 +3,7 @@ package com.mohsin.threesidedcubetest.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,13 +11,10 @@ import com.clarity.android.interview.adapter.AdapterPokemonList
 import com.clarity.android.interview.viewModels.MainActivityViewModel
 import com.mohsin.threesidedcubetest.R
 import com.mohsin.threesidedcubetest.model.PokemonNameAndImages
-import com.mohsin.threesidedcubetest.model.Result
-import com.mohsin.threesidedcubetest.model.Stat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,9 +25,6 @@ class MainActivity : AppCompatActivity() {
 
     private val pokemons = mutableListOf<PokemonNameAndImages>()
 
-    private val baseStats = arrayListOf<String>()
-    private val efforts = arrayListOf<String>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -41,46 +32,49 @@ class MainActivity : AppCompatActivity() {
         val itemScreenContainerView = findViewById<View>(R.id.item_screen_container)
         bindViews(itemScreenContainerView)
 
+        // initializing viewModel
         viewModel = MainActivityViewModel()
 
+        // calling base api to fetch the list of Pokemons
         CoroutineScope(Dispatchers.IO).launch {
+
+            // storing api response for further use
             val apiResponse = viewModel.makeApiCall()
+
             withContext(Dispatchers.Main) {
-//                adapter.updateNames(apiResponse as ArrayList<Result>)
 
+                // getting URLs from api response
                 if (apiResponse != null) {
-                    for (item in apiResponse) {
-                        val first = item.url.toString().substringBeforeLast("/")
-                        var pokeURL = first.substringAfterLast("/")
 
-                        val pokemonResponse = viewModel.makeIndividualApiCall(pokeURL.toInt())
+                    // we have to separate the Pokemon Index from Url so we can
+                    // use it as a api parameter to get details about individual Pokemon
+                    for (item in apiResponse) {
+
+                        // https://pokeapi.co/api/v2/pokemon/1/ from this url first we separated
+                        // ending '/' in 1st step then took out the number i.e., '1' in 2nd step
+                        val urlFirstHalf = item.url.toString().substringBeforeLast("/")
+                        var pokemonIndex = urlFirstHalf.substringAfterLast("/")
+
+                        // calling api for individual Pokemon details e.g., sprites
+                        val pokemonResponse = viewModel.makeIndividualApiCall(pokemonIndex.toInt())
                         val name = pokemonResponse.name.toString()
                         val img = pokemonResponse.sprites?.frontDefault.toString()
                         val stat = pokemonResponse.stats
 
-                        Log.d("pokemonStat", pokemonResponse.stats.toString())
-
+                        // we created a custom model class to mould the data according to our
+                        // own requirement because Sprites are included in individual link details
+                        // and we displayed it in all Pokemon list
                         pokemons.add(PokemonNameAndImages(name, img, stat))
 
+                        // populating data in the recycler view
                         adapter.update(pokemons as ArrayList<PokemonNameAndImages>)
-
-            //                    CoroutineScope(Dispatchers.IO).launch {
-            //                        val response = viewModel.makeIndividualApiCall(pokeURL.toInt())
-            //                        withContext(Dispatchers.Main) {
-            //                            pokemonsURLs.add(response.sprites?.backDefault.toString())
-            ////                            Log.d("My_Response2", response.sprites?.backDefault.toString())
-            //
-            //                        }
-            //                    }
-            //                    Log.d("My_Response2", pokemonsURLs[1])
                     }
                 }
-
-                Log.d("My_Response2", pokemons.toString())
             }
         }
     }
 
+    // initializing views
     private fun bindViews(parent: View) {
         toolbar = parent.findViewById(R.id.toolbar)
         toolbar.setLogo(R.drawable.logo)
@@ -89,17 +83,17 @@ class MainActivity : AppCompatActivity() {
         recyclerView = parent.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(parent.context, RecyclerView.VERTICAL, false)
 
+        // triggering click event
         adapter = AdapterPokemonList(){
                 selectedItem : Int -> itemClicked(selectedItem)
         }
         recyclerView.adapter = adapter
     }
 
+    // click event
     fun itemClicked(position : Int) {
-
         val intent = Intent(this, PokemonStats::class.java)
         intent.putExtra("pokemonID", position)
         startActivity(intent)
     }
-
 }
